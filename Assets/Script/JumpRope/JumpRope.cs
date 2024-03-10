@@ -15,7 +15,7 @@ public class JumpRope : MonoBehaviour
     [SerializeField] private GameObject rope = null;
     [SerializeField] private float ropeSpeed = 100f;
     private Vector3 startPos = Vector3.zero;
-    private bool isRotation = false;
+    private bool isRotation = true;
     public Text[] texts = new Text[2];
     public Text countDownText = null;
     private PhotonView pv = null;
@@ -32,7 +32,7 @@ public class JumpRope : MonoBehaviour
         RotationRope();
        
     }
-    private void RotationRope()
+    private void RotationRope()//동아줄 회전
     {
         if(isRotation)
         {
@@ -44,16 +44,16 @@ public class JumpRope : MonoBehaviour
         isRotation = false;
         rope.transform.position = new Vector3(0, 6.8f,0);
     }
-    public void RopeReSetting()
+    public void RopeReSetting()// 줄 재세팅
     {
         StartCoroutine(StartInN(10f));
     }
-    public void ChangeText(Text text, int num)
+    public void ChangeText(Text text, int num)//text 숫자 변경하기
     {
         text.text = num.ToString();
     }
     [PunRPC]
-    public void StartRopeRotation()
+    public void StartRopeRotation()//처음 2명이 있으면 겜 시작
     {
         int playerCount = PhotonNetwork.CurrentRoom.PlayerCount;
         if (playerCount >= 2)
@@ -62,7 +62,7 @@ public class JumpRope : MonoBehaviour
         }
     }
     
-    public void RpcStartGame()
+    public void RpcStartGame()//StartRopeRotation 모두에게 전달
     {
         pv.RPC("StartRopeRotation", RpcTarget.All);
     }
@@ -72,7 +72,7 @@ public class JumpRope : MonoBehaviour
         isRotation = true;
         Debug.Log("gamestart");
     }
-    private IEnumerator CountDownReMainTime()
+    private IEnumerator CountDownReMainTime()// 카운트 다운 아직안함
     {
         float time = 5f;
 

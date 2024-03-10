@@ -39,15 +39,15 @@ public class JumpRopeSystem : MonoBehaviourPunCallbacks
         Debug.Log(JumpRope.Instance);
         JumpRope.Instance.RpcStartGame();
     }
-    public Vector3 SetStartPoint()
+    public Vector3 SetStartPoint()//초기위치 설정
     {
         if (PhotonNetwork.IsMasterClient)
         {
-            return new Vector3(1,1,0);
+            return new Vector3(1,0.1f,0);
         }
         else
         {
-            return new Vector3(-1, 1, 0);
+            return new Vector3(-1, 0.1f, 0);
         }     
     }
     [PunRPC]

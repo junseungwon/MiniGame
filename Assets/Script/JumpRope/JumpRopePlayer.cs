@@ -1,6 +1,7 @@
 using Photon.Pun;
 using System.Collections;
 using UnityEngine;
+
 public class JumpRopePlayer : MonoBehaviourPunCallbacks, IPunObservable
 {
     private int winScore = 0;
@@ -9,28 +10,56 @@ public class JumpRopePlayer : MonoBehaviourPunCallbacks, IPunObservable
     private PhotonView pv;
     private Animator animator;
     private bool isJump = false;
+    private float isJumpTime = 1f;
+    private Rigidbody rb;
     // Start is called before the first frame update
     void Start()
     {
         pv = GetComponent<PhotonView>();
         animator = GetComponent<Animator>();
-        StartCoroutine(CheckFlow());
+        rb = GetComponent<Rigidbody>();
     }
-
-    // Update is called once per frame
     void Update()
     {
         Jump();
-        PlayerMove();
+        CheckFlow();
     }
-    private void PlayerMove()
+    private void FixedUpdate()
+    {
+        UseGravity();
+        TestMove();
+    }
+    private void TestMove()//일반적인 조작 움직임
     {
         if (pv.IsMine)
         {
-            float zPos = Input.GetAxis("Vertical");
-            float xPos = Input.GetAxis("Horizontal");
-            transform.Translate(new Vector3(zPos, 0f, xPos) * 2f * Time.deltaTime);
+            float h = Input.GetAxis("Horizontal");
+            float v = Input.GetAxis("Vertical");
+            Vector3 dir = new Vector3(h, 0, v);
+            dir.Normalize();
+            if (dir != Vector3.zero)
+            {
+                if (Mathf.Sign(dir.x) != Mathf.Sign(transform.position.x) || Mathf.Sign(dir.z) != Mathf.Sign(transform.position.z))
+                {
+                    transform.Rotate(0, 1, 0);
+                }
+                transform.forward = Vector3.Lerp(transform.forward, dir, 30f * Time.deltaTime);
+            }
+            rb.MovePosition(transform.position + dir * 5f * Time.deltaTime);
 
+        }
+    }
+    private void UseGravity()//리지드 쓰려다가 개같아서 간단하게 만듬
+    {
+        Debug.Log(isJump);
+        if (pv.IsMine && isJump == false)
+        {
+            isJumpTime += 0.1f; if (isJumpTime > 1.6f) isJumpTime = 1f;
+            transform.Translate(Vector3.down * Time.deltaTime * 0.7f * isJumpTime);
+        }
+        else
+        {
+            isJumpTime = 1f;
         }
     }
     //플레이어가 안넘어지게 rigidBody Freezen해둠 
@@ -40,14 +69,15 @@ public class JumpRopePlayer : MonoBehaviourPunCallbacks, IPunObservable
         {
             if (Input.GetKeyDown(KeyCode.Space) && isJump == true)
             {
+                isJump = false;
                 AnimationSpeedChange();
                 animator.SetBool("Jump", true);
-                StartCoroutine(AddForce());
+                StartCoroutine(JumpUp());
                 StartCoroutine(StopAnimation("Jump", 1f));
             }
         }
     }
-    private IEnumerator AddForce()
+    private IEnumerator JumpUp()//점프값 보정 단계별로 상승 
     {
         float speed = 0.4f;
         yield return new WaitForSeconds(0.3f);
@@ -63,30 +93,21 @@ public class JumpRopePlayer : MonoBehaviourPunCallbacks, IPunObservable
         animator.speed = 1.0f;
         animator.SetBool(text, false);
     }
-    private IEnumerator CheckFlow()//캐릭터가 바닥에 닿았는지 체크
+    private void CheckFlow()//캐릭터가 바닥에 닿았는지 체크
     {
-        while (true)
+        RaycastHit hit;
+        if (Physics.Raycast(transform.position, Vector3.down, out hit, 0.04f))
         {
-            RaycastHit hit;
-            if (Physics.Raycast(transform.position, Vector3.down, out hit, 0.04f))
+            if (hit.collider.name == "Plane")
             {
-                if (hit.collider.name == "Plane")
-                {
-                    isJump = true;
-                }
-                else
-                {
-                    isJump = false;
-                }
+                isJump = true;
             }
-            yield return new WaitForSeconds(0.1f);
+            else
+            {
+                isJump = false;
+            }
         }
-    }
-    IEnumerator saveCorutine = null;
-    private void SaveCorutine(IEnumerator corutine)//코루틴을 저장하고 해당 코루틴 실행
-    {
-        saveCorutine = corutine;
-        StartCoroutine(saveCorutine);
+        if (hit.collider == null) { isJump = false; }
     }
     public void PlayerLose()//플레이 패배
     {
@@ -117,7 +138,7 @@ public class JumpRopePlayer : MonoBehaviourPunCallbacks, IPunObservable
         JumpRope.Instance.ChangeText(JumpRope.Instance.texts[0], winScore);
         JumpRope.Instance.RopeReSetting();
     }
-    private void AnimationSpeedChange()
+    private void AnimationSpeedChange()//애니메이션 속도 변경
     {
         animator.speed = 1.3f;
     }

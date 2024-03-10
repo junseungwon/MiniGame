@@ -6,13 +6,17 @@ using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 public class JumpRopeSystem : MonoBehaviourPunCallbacks
 {
+    private static JumpRopeSystem instance = null;
+    public static JumpRopeSystem Instance
+    {
+        get {  if (instance == null) instance = FindObjectOfType<JumpRopeSystem>(); return instance; }
+    }
     private string nickName = "";
-    private int maxPlayer = 0;
     [SerializeField] private Text nickNameText = null;
     private void Awake()//처음 세팅
     {
         DontDestroyOnLoad(this);
-        Screen.SetResolution(960, 540, false);
+        Screen.SetResolution(1200, 1000, false);
     }
     public void NextScene()//버튼 누르면 겜씬으로 이동한다.
     {
@@ -30,8 +34,21 @@ public class JumpRopeSystem : MonoBehaviourPunCallbacks
     }
     public override void OnJoinedRoom()//방에 참가했을 경우 플레이어 생성
     {
-        GameObject player =PhotonNetwork.Instantiate("Player", new Vector3(0,1,0), Quaternion.identity);
+        GameObject player = PhotonNetwork.Instantiate("Player", SetStartPoint(), Quaternion.identity);
         player.name = nickName;
+        Debug.Log(JumpRope.Instance);
+        JumpRope.Instance.RpcStartGame();
+    }
+    public Vector3 SetStartPoint()
+    {
+        if (PhotonNetwork.IsMasterClient)
+        {
+            return new Vector3(1,1,0);
+        }
+        else
+        {
+            return new Vector3(-1, 1, 0);
+        }     
     }
     [PunRPC]
     public void UpIntMaxPlayer()

@@ -12,12 +12,14 @@ public class JumpRopePlayer : MonoBehaviourPunCallbacks, IPunObservable
     private bool isJump = false;
     private float isJumpTime = 1f;
     private Rigidbody rb;
+    private JumpRope jumpRope;
     // Start is called before the first frame update
     void Start()
     {
         pv = GetComponent<PhotonView>();
         animator = GetComponent<Animator>();
         rb = GetComponent<Rigidbody>();
+        jumpRope =FindObjectOfType<JumpRope>();
     }
     void Update()
     {
@@ -114,12 +116,12 @@ public class JumpRopePlayer : MonoBehaviourPunCallbacks, IPunObservable
         if (pv.IsMine)
         {
             Debug.Log("PlayerLose");
-            JumpRope.Instance.StopRotationRope();
+            jumpRope.StopRotationRope();
             transform.position = JumpRopeSystem.Instance.SetStartPoint();
             pv.RPC("RpcPlayerWin", RpcTarget.OthersBuffered);
             OpponentWinScore++;
-            JumpRope.Instance.ChangeText(JumpRope.Instance.texts[1], OpponentWinScore);
-            JumpRope.Instance.RopeReSetting();
+            jumpRope.ChangeText(jumpRope.texts[1], OpponentWinScore);
+            jumpRope.RopeReSetting();
         }
         //줄멈추고 위치 초기화
         //플레이어 위치 초기화
@@ -132,11 +134,11 @@ public class JumpRopePlayer : MonoBehaviourPunCallbacks, IPunObservable
     private void RpcPlayerWin()//받았을 경우 상대로부터 승리
     {
         Debug.Log("rpcWin");
-        JumpRope.Instance.StopRotationRope();
+        jumpRope.StopRotationRope();
         transform.position = JumpRopeSystem.Instance.SetStartPoint();
         winScore++;
-        JumpRope.Instance.ChangeText(JumpRope.Instance.texts[0], winScore);
-        JumpRope.Instance.RopeReSetting();
+        jumpRope.ChangeText(jumpRope.texts[0], winScore);
+        jumpRope.RopeReSetting();
     }
     private void AnimationSpeedChange()//애니메이션 속도 변경
     {

@@ -16,7 +16,7 @@ public class JumpRopeSystem : MonoBehaviourPunCallbacks
     private void Awake()//처음 세팅
     {
         DontDestroyOnLoad(this);
-        Screen.SetResolution(1200, 1000, false);
+        Screen.SetResolution(600, 600, false);
     }
     public void NextScene()//버튼 누르면 겜씬으로 이동한다.
     {
@@ -36,18 +36,18 @@ public class JumpRopeSystem : MonoBehaviourPunCallbacks
     {
         GameObject player = PhotonNetwork.Instantiate("Player", SetStartPoint(), Quaternion.identity);
         player.name = nickName;
-        Debug.Log(JumpRope.Instance);
-        JumpRope.Instance.RpcStartGame();
+        Debug.Log(player.transform.position);
+        FindObjectOfType<JumpRope>().RpcStartGame();
     }
     public Vector3 SetStartPoint()//초기위치 설정
     {
         if (PhotonNetwork.IsMasterClient)
         {
-            return new Vector3(1,0.1f,0);
+            return new Vector3(1,0.3f,0);
         }
         else
         {
-            return new Vector3(-1, 0.1f, 0);
+            return new Vector3(-1, 0.3f, 0);
         }     
     }
     [PunRPC]

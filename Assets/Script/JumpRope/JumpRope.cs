@@ -6,16 +6,11 @@ using UnityEngine;
 using UnityEngine.UI;
 public class JumpRope : MonoBehaviour
 {
-    private static JumpRope instance;
-    public static JumpRope Instance
-    {
-        get { if (instance == null)  instance=FindObjectOfType<JumpRope>(); return instance; }
-    }
     [SerializeField]private GameObject centerPos = null;
     [SerializeField] private GameObject rope = null;
     [SerializeField] private float ropeSpeed = 100f;
     private Vector3 startPos = Vector3.zero;
-    private bool isRotation = true;
+    private bool isRotation = false;
     public Text[] texts = new Text[2];
     public Text countDownText = null;
     private PhotonView pv = null;
@@ -30,7 +25,6 @@ public class JumpRope : MonoBehaviour
     void Update()
     {
         RotationRope();
-       
     }
     private void RotationRope()//동아줄 회전
     {

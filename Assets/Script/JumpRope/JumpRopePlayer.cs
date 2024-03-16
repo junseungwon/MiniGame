@@ -169,6 +169,7 @@ public class JumpRopePlayer : MonoBehaviourPunCallbacks, IPunObservable
         {
             text = (int)stream.ReceiveNext();
         }
+        Debug.Log("Remove");
 
     }
 }

@@ -11,8 +11,10 @@ public class JumpRopeSystem : MonoBehaviourPunCallbacks
     {
         get {  if (instance == null) instance = FindObjectOfType<JumpRopeSystem>(); return instance; }
     }
-    private string nickName = "";
+    public string nickName = "";
+    public string opperNickName = "";
     [SerializeField] private Text nickNameText = null;
+    public Player[] players = new Player[2];
     private void Awake()//처음 세팅
     {
         DontDestroyOnLoad(this);
@@ -38,6 +40,19 @@ public class JumpRopeSystem : MonoBehaviourPunCallbacks
         player.name = nickName;
         Debug.Log(player.transform.position);
         FindObjectOfType<JumpRope>().RpcStartGame();
+        Debug.Log("hello");
+    }
+    private void SettingPlayer(GameObject player)
+    {
+        if (PhotonNetwork.IsMasterClient)
+        {
+            players[0] = new Player(player, nickName, 0,0);
+        }
+        else
+        {
+           // if (player[0] == null)
+            players[1] = new Player(player, nickName, 0,0);
+        }
     }
     public Vector3 SetStartPoint()//초기위치 설정
     {
@@ -53,6 +68,20 @@ public class JumpRopeSystem : MonoBehaviourPunCallbacks
     [PunRPC]
     public void UpIntMaxPlayer()
     {
-        
+       
     }
+}
+public class Player
+{
+    public GameObject playerObj = null;
+    public string nickName = "";
+    public int winScore = 0;
+    public int opperScore =0;
+    public Player(GameObject playerObj, string nickName,int winScore, int opperScore) {
+        this.playerObj = playerObj;
+        this.nickName = nickName;
+        this.winScore = winScore;
+        this.opperScore = opperScore;    
+    }
+
 }
